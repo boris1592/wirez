@@ -87,13 +87,25 @@ func NewNetworkStack(log *zerolog.Logger, fd int, mtu uint32, tunNetworkAddr str
 	return s, nil
 }
 
+func ipToAddr(ip net.IP) tcpip.Address {
+	if ip4 := ip.To4(); ip4 != nil {
+		return tcpip.AddrFromSlice(ip4)
+	}
+	return tcpip.AddrFromSlice(ip)
+}
+
+func ipMaskToAddrMask(ipMask net.IPMask) tcpip.AddressMask {
+	addr := ipToAddr(net.IP(ipMask))
+	return tcpip.MaskFromBytes(addr.AsSlice())
+}
+
 func (s *NetworkStack) SetupRouting(nic tcpip.NICID, assignNet string) error {
 	_, ipNet, err := net.ParseCIDR(assignNet)
 	if err != nil {
 		return fmt.Errorf("unable to ParseCIDR(%s): %w", assignNet, err)
 	}
 
-	subnet, err := tcpip.NewSubnet(tcpip.Address(ipNet.IP), tcpip.AddressMask(ipNet.Mask))
+	subnet, err := tcpip.NewSubnet(ipToAddr(ipNet.IP), ipMaskToAddrMask(ipNet.Mask))
 	if err != nil {
 		return fmt.Errorf("unable to NewSubnet(%s): %w", ipNet, err)
 	}
@@ -133,7 +145,7 @@ func (s *NetworkStack) setTCPHandler() {
 }
 
 func (s *NetworkStack) setUDPHandler() {
-	udpForwarder := udp.NewForwarder(s.Stack, func(r *udp.ForwarderRequest) {
+	udpForwarder := udp.NewForwarder(s.Stack, func(r *udp.ForwarderRequest) bool {
 		var wq waiter.Queue
 		id := r.ID()
 		s.log.Debug().Str("handler", "udp").
@@ -142,13 +154,14 @@ func (s *NetworkStack) setUDPHandler() {
 		ep, err := r.CreateEndpoint(&wq)
 		if err != nil {
 			s.log.Error().Str("handler", "udp").Stringer("error", err).Msg("")
-			return
+			return false
 		}
 		go func() {
-			if err := s.handleUDP(gonet.NewUDPConn(s.Stack, &wq, ep), &id); err != nil {
+			if err := s.handleUDP(gonet.NewUDPConn(&wq, ep), &id); err != nil {
 				s.log.Error().Str("handler", "udp").Err(err).Msg("")
 			}
 		}()
+		return true
 	})
 	s.SetTransportProtocolHandler(udp.ProtocolNumber, udpForwarder.HandlePacket)
 }

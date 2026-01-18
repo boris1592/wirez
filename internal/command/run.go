@@ -14,7 +14,7 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
-	"github.com/v-byte-cpu/wirez/pkg/connect"
+	"github.com/v-byte-cpu/wirez/internal/connect"
 	"go.uber.org/multierr"
 	"golang.org/x/sys/unix"
 )
@@ -56,6 +56,7 @@ func newRunCmd(log *zerolog.Logger) *runCmd {
 			if err != nil {
 				return
 			}
+
 			defer unix.Close(parentFd)
 			defer unix.Close(childFd)
 

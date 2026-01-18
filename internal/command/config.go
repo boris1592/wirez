@@ -12,7 +12,7 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/spf13/pflag"
-	"github.com/v-byte-cpu/wirez/pkg/connect"
+	"github.com/v-byte-cpu/wirez/internal/connect"
 )
 
 func parseProxyFile(proxyFile io.Reader) (socksAddrs []*connect.SocksAddr, err error) {

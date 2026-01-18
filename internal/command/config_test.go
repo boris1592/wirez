@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/v-byte-cpu/wirez/pkg/connect"
+	"github.com/v-byte-cpu/wirez/internal/connect"
 )
 
 func TestParseProxyURL(t *testing.T) {
