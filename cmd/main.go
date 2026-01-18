@@ -1,6 +1,6 @@
 package main
 
-import "github.com/v-byte-cpu/wirez/internal/command"
+import "github.com/boris1592/wirez/internal/command"
 
 func main() {
 	command.Main()

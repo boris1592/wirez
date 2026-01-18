@@ -12,9 +12,9 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/boris1592/wirez/internal/connect"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
-	"github.com/v-byte-cpu/wirez/internal/connect"
 	"go.uber.org/multierr"
 	"golang.org/x/sys/unix"
 )

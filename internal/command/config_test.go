@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/boris1592/wirez/internal/connect"
 	"github.com/stretchr/testify/require"
-	"github.com/v-byte-cpu/wirez/internal/connect"
 )
 
 func TestParseProxyURL(t *testing.T) {
